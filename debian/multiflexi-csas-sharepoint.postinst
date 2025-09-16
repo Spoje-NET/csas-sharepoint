@@ -4,9 +4,9 @@ set -e
 
 . /usr/share/debconf/confmodule
 
-for file in `ls /usr/lib/multiflexi-csas-sharepoint/multiflexi/*.json`
+for file in /usr/lib/csas-sharepoint/multiflexi/*.json
 do
-	multiflexi-json2app $file
+	multiflexi-json2app "$file"
 done
 
 #DEBHELPER#
