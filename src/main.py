@@ -284,25 +284,32 @@ Environment Variables:
   CSAS_ACCESS_TOKEN    - CSAS access token
   CSAS_ACCOUNT_UUID    - CSAS account UUID (or CSAS_ACCOUNT_IBAN)
   CSAS_ACCOUNT_IBAN    - CSAS account IBAN (alternative to UUID)
+  CSAS_STATEMENT_SCOPE - Default scope for statement download
+  STATEMENT_FORMAT     - Default format for statements (MultiFlexi)
   
   OFFICE365_TENANT     - Office 365 tenant name
   OFFICE365_SITE       - SharePoint site name
+  OFFICE365_PATH       - Target path in SharePoint
+  SHAREPOINT_LIBRARY   - SharePoint document library
   OFFICE365_USERNAME   - Office 365 username (for user auth)
   OFFICE365_PASSWORD   - Office 365 password (for user auth)
   OFFICE365_CLIENTID   - Office 365 client ID (for app auth)
   OFFICE365_CLSECRET   - Office 365 client secret (for app auth)
   
   DEBUG                - Enable debug logging (true/false)
+  APP_DEBUG            - Enable application debug mode
+  EASE_LOGGER          - Logging method (console/syslog/eventlog)
+  RESULT_FILE          - Output JSON report file
 
-Formats: pdf, xml, abo-standard, csv-comma, mt940
-Scopes: yesterday, current_month, last_month, last_two_months
+Formats: pdf, xml, xml-data, abo-standard, abo-internal, csv-comma, csv-semicolon, mt940
+Scopes: yesterday, current_month, last_month, last_two_months, previous_month, this_year
         """
     )
     
     parser.add_argument(
         '-f', '--format',
-        default='pdf',
-        help='Statement format (default: pdf)'
+        default=os.getenv('STATEMENT_FORMAT', 'pdf'),
+        help='Statement format (default: pdf or STATEMENT_FORMAT env var)'
     )
     
     parser.add_argument(
