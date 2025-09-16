@@ -1,41 +1,175 @@
 {
-	"$schema": "https://raw.githubusercontent.com/VitexSoftware/php-vitexsoftware-multiflexi-core/refs/heads/main/multiflexi.app.schema.json",
-	"name": "csas-sharepoint",
-	"description": "Automates download of ABO statements from Česká spořitelna and uploads them to SharePoint.",
-	"executable": "python3 src/main.py",
-	"configuration": {
-		"CSAS_API_KEY": "",
-		"CSAS_ACCESS_TOKEN": "",
-		"CSAS_ACCOUNT_UUID": "",
-		"CSAS_ACCOUNT_IBAN": "",
-		"CSAS_STATEMENT_SCOPE": "",
-		"OFFICE365_USERNAME": "",
-		"OFFICE365_PASSWORD": "",
-		"OFFICE365_CLIENTID": "",
-		"OFFICE365_SECRET": "",
-		"OFFICE365_CLSECRET": "",
-		"OFFICE365_TENANT": "",
-		"OFFICE365_SITE": "",
-		"OFFICE365_PATH": ""
-	},
-		"inputs": [
-			"CSAS_API_KEY",
-			"CSAS_ACCESS_TOKEN",
-			"CSAS_ACCOUNT_UUID",
-			"CSAS_ACCOUNT_IBAN",
-			"CSAS_STATEMENT_SCOPE",
-			"OFFICE365_USERNAME",
-			"OFFICE365_PASSWORD",
-			"OFFICE365_CLIENTID",
-			"OFFICE365_SECRET",
-			"OFFICE365_CLSECRET",
-			"OFFICE365_TENANT",
-			"OFFICE365_SITE",
-			"OFFICE365_PATH"
-		],
-			"environment": {
-				"DEBUG": {"value": true},
-				"APP_DEBUG": {"value": true},
-				"EASE_LOGGER": {"value": "console"}
-			}
-	}
+    "$schema": "https://raw.githubusercontent.com/VitexSoftware/php-vitexsoftware-multiflexi-core/refs/heads/main/multiflexi.app.schema.json",
+    "image": "",
+    "name": "CSAS to SharePoint",
+    "description": "Automates download of bank statements from Česká spořitelna and uploads them to SharePoint.",
+    "executable": "csas-sharepoint",
+    "setup": "",
+    "cmdparams": "",
+    "deploy": "apt install csas-sharepoint",
+    "homepage": "https://github.com/VitexSoftware/csas-sharepoint",
+    "requirements": [
+        "Csas",
+        "Office365"
+    ],
+    "ociimage": "",
+    "topics": [
+        "Csas",
+        "SharePoint",
+        "Office365",
+        "Statements",
+        "Upload",
+        "Banking"
+    ],
+    "artifacts": [
+        {
+            "name": "SharePoint Upload Log",
+            "type": "file",
+            "path": "csas_sharepoint.log",
+            "description": "Log file containing upload status and SharePoint URLs"
+        }
+    ],
+    "uuid": "f4d7c8a2-3e9b-4f5a-8c1d-2b6e9f7a4c5d",
+    "environment": {
+        "CSAS_API_KEY": {
+            "type": "text",
+            "description": "API key for CSAS",
+            "required": true
+        },
+        "CSAS_ACCESS_TOKEN": {
+            "type": "text",
+            "description": "Access token for CSAS",
+            "required": true
+        },
+        "CSAS_ACCOUNT_IBAN": {
+            "type": "text",
+            "description": "IBAN of the CSAS account",
+            "required": false
+        },
+        "CSAS_ACCOUNT_UUID": {
+            "type": "text",
+            "description": "UUID of the CSAS account",
+            "required": false
+        },
+        "CSAS_STATEMENT_SCOPE": {
+            "type": "select",
+            "description": "Time scope for statement download",
+            "defval": "last_month",
+            "options": {
+                "yesterday": "Yesterday",
+                "current_month": "Current Month",
+                "last_month": "Last Month",
+                "last_two_months": "Last Two Months",
+                "previous_month": "Previous Month",
+                "two_months_ago": "Two Months Ago",
+                "this_year": "This Year"
+            },
+            "required": false
+        },
+        "STATEMENT_FORMAT": {
+            "type": "select",
+            "description": "Format of downloaded statements",
+            "defval": "pdf",
+            "options": {
+                "pdf": "PDF",
+                "xml": "XML",
+                "xml-data": "XML Data",
+                "abo-standard": "ABO Standard",
+                "abo-internal": "ABO Internal",
+                "csv-comma": "CSV Comma",
+                "csv-semicolon": "CSV Semicolon",
+                "mt940": "MT940"
+            },
+            "required": false
+        },
+        "CSAS_SANDBOX_MODE": {
+            "type": "bool",
+            "description": "Enable sandbox mode for CSAS",
+            "defval": false,
+            "required": false
+        },
+        "CSAS_API_DEBUG": {
+            "type": "bool",
+            "description": "Enable API debug mode for CSAS",
+            "defval": false,
+            "required": false
+        },
+        "OFFICE365_USERNAME": {
+            "type": "text",
+            "description": "Office 365 Username (for user auth)",
+            "required": false
+        },
+        "OFFICE365_PASSWORD": {
+            "type": "password",
+            "description": "Office 365 Password (for user auth)",
+            "required": false
+        },
+        "OFFICE365_CLIENTID": {
+            "type": "text",
+            "description": "Office 365 Client ID (for app auth)",
+            "required": false
+        },
+        "OFFICE365_SECRET": {
+            "type": "text",
+            "description": "Office 365 Secret (deprecated)",
+            "required": false
+        },
+        "OFFICE365_CLSECRET": {
+            "type": "password",
+            "description": "Office 365 Client Secret (for app auth)",
+            "required": false
+        },
+        "OFFICE365_TENANT": {
+            "type": "text",
+            "description": "Office 365 Tenant name",
+            "required": true
+        },
+        "OFFICE365_SITE": {
+            "type": "text",
+            "description": "SharePoint site name",
+            "required": true
+        },
+        "OFFICE365_PATH": {
+            "type": "text",
+            "description": "Target path in SharePoint",
+            "defval": "bank-statements",
+            "required": false
+        },
+        "SHAREPOINT_LIBRARY": {
+            "type": "text",
+            "description": "SharePoint document library",
+            "defval": "Documents",
+            "required": false
+        },
+        "APP_DEBUG": {
+            "type": "bool",
+            "description": "Enable application debug mode",
+            "defval": false,
+            "required": false
+        },
+        "DEBUG": {
+            "type": "bool",
+            "description": "Enable general debug mode",
+            "defval": false,
+            "required": false
+        },
+        "EASE_LOGGER": {
+            "type": "select",
+            "description": "Logging method",
+            "defval": "console",
+            "options": {
+                "console": "Console",
+                "syslog": "Syslog",
+                "eventlog": "Event Log"
+            },
+            "required": false
+        },
+        "RESULT_FILE": {
+            "type": "text",
+            "description": "Output JSON report file",
+            "defval": "csas_sharepoint.json",
+            "required": false
+        }
+    },
+    "multiflexi": "2.0.0"
+}
