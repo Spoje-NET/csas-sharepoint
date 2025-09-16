@@ -25,7 +25,7 @@ The required tools are available as Debian packages:
 echo "deb http://repo.vitexsoftware.com $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/vitexsoftware.list
 sudo wget -O /etc/apt/trusted.gpg.d/vitexsoftware.gpg http://repo.vitexsoftware.com/keyring.gpg
 sudo apt update
-sudo apt install csas-statement-tools file2sharepoint
+sudo apt install csas-sharepoint
 ```
 
 ## Configuration
@@ -102,6 +102,14 @@ tests/test_main.py           # Unit tests
 multiflexi/csas-sharepoint.app.json  # MultiFlexi configuration
 debian/                      # Debian packaging files
 ```
+
+## MultiFlexi
+
+CSas to Sharepoint is ready for run as [MultiFlexi](https://multiflexi.eu) application.
+See the full list of ready-to-run applications within the MultiFlexi platform on the [application list page](https://www.multiflexi.eu/apps.php).
+
+[![MultiFlexi App](https://github.com/VitexSoftware/MultiFlexi/blob/main/doc/multiflexi-app.svg)](https://www.multiflexi.eu/apps.php)
+
 
 ## License
 

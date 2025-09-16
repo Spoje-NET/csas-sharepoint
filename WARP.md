@@ -30,10 +30,7 @@ The application follows MultiFlexi configuration patterns with these environment
 
 ### Environment Setup
 ```bash
-# Install dependencies (when requirements.txt exists)
-pip install -r requirements.txt
-
-# Or using the current pyproject.toml setup
+# Install dependencies using the current pyproject.toml setup
 pip install -e .
 ```
 
