@@ -1,0 +1,23 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    remove|purge)
+        # Remove the symlink if it exists
+        if [ -L /usr/bin/csas-sharepoint ]; then
+            rm -f /usr/bin/csas-sharepoint
+        fi
+        ;;
+    
+    upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+        ;;
+    
+    *)
+        echo "postrm called with unknown argument \`$1'" >&2
+        exit 1
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

@@ -1,6 +1,10 @@
-csas-sharepoint (0.1.0) UNRELEASED; urgency=low
+csas-sharepoint (0.1.0-1) unstable; urgency=low
 
-  * Initial release. Closes: #nnnn
-    <nnnn is the bug number of your ITP>
+  * Initial release
+  * Automated CSAS bank statement download and SharePoint upload
+  * Command-line interface with multiple format and scope options
+  * Comprehensive error handling and logging
+  * MultiFlexi framework integration
+  * Unit tests included
 
- -- Vítězslav Dvořák <info@vitexsoftware.cz>  Mon, 15 Sep 2025 23:04:23 +0200
+ -- Vítězslav Dvořák <info@vitexsoftware.cz>  Mon, 16 Sep 2025 14:43:08 +0000

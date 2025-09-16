@@ -1,19 +1,33 @@
 [project]
 name = "csas-sharepoint"
 version = "0.1.0"
-description = ""
+description = "CSAS bank statements to SharePoint uploader"
 authors = [
-    {name = "CyberVitexus",email = "info@vitexsoftware.cz"}
+    {name = "Vítězslav Dvořák", email = "info@vitexsoftware.cz"}
 ]
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = [
+dependencies = []
+keywords = ["csas", "sharepoint", "banking", "statements", "automation"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business :: Financial",
+    "Topic :: System :: Archiving :: Backup"
 ]
 
-[tool.poetry]
-packages = [{include = "csas_sharepoint", from = "src"}]
+[project.urls]
+Homepage = "https://github.com/VitexSoftware/csas-sharepoint"
+"Bug Reports" = "https://github.com/VitexSoftware/csas-sharepoint/issues"
+"Source" = "https://github.com/VitexSoftware/csas-sharepoint"
 
+[project.scripts]
+csas-sharepoint = "main:main"
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"

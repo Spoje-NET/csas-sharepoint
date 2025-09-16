@@ -1,0 +1,26 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    configure)
+        # Make the main script executable
+        chmod +x /usr/lib/csas-sharepoint/main.py
+        
+        # Ensure the symlink is created properly
+        if [ ! -L /usr/bin/csas-sharepoint ]; then
+            ln -sf /usr/lib/csas-sharepoint/main.py /usr/bin/csas-sharepoint
+        fi
+        ;;
+    
+    abort-upgrade|abort-remove|abort-deconfigure)
+        ;;
+    
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

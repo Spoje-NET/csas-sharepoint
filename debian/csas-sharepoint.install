@@ -1,1 +1,2 @@
-src/csas2sharepoint.py
+src/main.py usr/lib/csas-sharepoint/
+multiflexi/csas-sharepoint.app.json usr/lib/multiflexi/apps/
