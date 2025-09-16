@@ -1,58 +1,106 @@
-# CSAS Statement to Pohoda Importer
+# CSAS to SharePoint Statement Uploader
 
-This project provides a Python script to automate the process of downloading bank statements from Česká spořitelna (CSAS) and importing them into Pohoda accounting software.
+This project provides a Python application to automate the process of downloading bank statements from Česká spořitelna (CSAS) and uploading them to SharePoint.
 
 ## Features
 
 - Download bank statements using [csas-statement-tools](https://github.com/VitexSoftware/csas-statement-tools)
-- Import statements into Pohoda using [pohoda-abo-importer](https://github.com/Spoje-NET/pohoda-abo-importer)
+- Upload statements to SharePoint using [file2sharepoint](https://github.com/VitexSoftware/file2sharepoint)
 - Command-line interface for easy automation
-- Error handling and logging
+- Error handling and comprehensive logging
 - Unit tests included
+- MultiFlexi framework compatible
 
 ## Requirements
 
-- Python 3.8+
-- `csas-statement-tools` Python package
-- `pohoda-abo-importer` Python package
+- Python 3.13+
+- `csas-statement-tools` (system package)
+- `file2sharepoint` (system package)
 
 ## Installation
 
-Install dependencies using pip:
+The required tools are available as Debian packages:
 
 ```bash
-pip install csas-statement-tools pohoda-abo-importer
+echo "deb http://repo.vitexsoftware.com $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/vitexsoftware.list
+sudo wget -O /etc/apt/trusted.gpg.d/vitexsoftware.gpg http://repo.vitexsoftware.com/keyring.gpg
+sudo apt update
+sudo apt install csas-statement-tools file2sharepoint
+```
+
+## Configuration
+
+Create a `.env` file with the required configuration:
+
+```bash
+# CSAS Configuration
+CSAS_API_KEY=your-api-key
+CSAS_ACCESS_TOKEN=your-access-token
+CSAS_ACCOUNT_IBAN=CZ0000000000000000000000
+
+# CSAS Settings
+CSAS_STATEMENT_SCOPE=last_month
+
+# Office 365 / SharePoint Configuration
+OFFICE365_TENANT=yourcompany
+OFFICE365_SITE=yoursite
+
+# Office 365 Authentication (choose one method)
+# Method 1: Username/Password
+OFFICE365_USERNAME=user@yourcompany.onmicrosoft.com
+OFFICE365_PASSWORD=your-password
+
+# Method 2: Client Credentials (recommended)
+# OFFICE365_CLIENTID=your-client-id
+# OFFICE365_CLSECRET=your-client-secret
+
+# SharePoint Library/Path
+SHAREPOINT_LIBRARY=Documents
+OFFICE365_PATH=bank-statements
+
+# Debug Settings
+DEBUG=true
 ```
 
 ## Usage
 
-Run the script to download statements and import them into Pohoda:
+Basic usage:
 
 ```bash
-python src/statement_sync.py --from-date YYYY-MM-DD --to-date YYYY-MM-DD --output-dir /path/to/output --pohoda-url URL --pohoda-token TOKEN
+python3 src/main.py
 ```
 
-### Arguments
+With custom options:
 
-- `--from-date` Start date in `YYYY-MM-DD` format (required)
-- `--to-date` End date in `YYYY-MM-DD` format (required)
-- `--output-dir` Directory to save downloaded statements (default: `statements`)
-- `--pohoda-url` Pohoda API URL (required)
-- `--pohoda-token` Pohoda API token (required)
+```bash
+python3 src/main.py --format pdf --scope last_month --sharepoint-path "statements/2024"
+```
+
+### Command Line Arguments
+
+- `-f, --format` - Statement format (default: pdf)
+  - Available: pdf, xml, abo-standard, csv-comma, mt940
+- `-s, --scope` - Time scope for statements
+  - Available: yesterday, current_month, last_month, last_two_months
+- `-p, --sharepoint-path` - Target path in SharePoint
+- `-t, --temp-dir` - Temporary directory for downloads
+- `--no-cleanup` - Do not cleanup temporary files
 
 ## Testing
 
 Run unit tests with:
 
 ```bash
-python -m unittest discover tests
+python3 -m unittest discover tests -v
 ```
 
 ## Project Structure
 
 ```
-src/statement_sync.py        # Main script
-tests/test_statement_sync.py # Unit tests
+src/main.py                  # Main application
+tests/test_main.py           # Unit tests
+multiflexi/csas-sharepoint.app.json  # MultiFlexi configuration
+debian/                      # Debian packaging files
 ```
 
 ## License
