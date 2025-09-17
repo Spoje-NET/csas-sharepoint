@@ -1,12 +1,13 @@
 {
+    "$schema": "https://raw.githubusercontent.com/VitexSoftware/php-vitexsoftware-multiflexi-core/refs/heads/main/multiflexi.app.schema.json",
     "image": "",
     "name": "CSAS to SharePoint",
     "description": "Automates download of bank statements from Česká spořitelna and uploads them to SharePoint.",
     "executable": "csas-sharepoint",
     "setup": "",
-    "cmdparams": "",
+    "cmdparams": "-f {STATEMENT_FORMAT} -s {CSAS_STATEMENT_SCOPE} -p {OFFICE365_PATH} ",
     "deploy": "apt install csas-sharepoint",
-    "homepage": "https://github.com/VitexSoftware/csas-sharepoint",
+    "homepage": "https://github.com/Spoje-Net/csas-sharepoint",
     "requirements": [
         "Csas",
         "Office365"
