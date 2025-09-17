@@ -11,7 +11,7 @@ String[] distributions = [
 ]
 
 String vendor = 'vitexsoftware'
-String imagePrefix = 'multiflexi-'
+String imagePrefix = ''
 
 properties([
     copyArtifactPermission('*')
