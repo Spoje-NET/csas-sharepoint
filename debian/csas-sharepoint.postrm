@@ -3,10 +3,8 @@ set -e
 
 case "$1" in
     remove|purge)
-        # Remove the symlink if it exists
-        if [ -L /usr/bin/csas-sharepoint ]; then
-            rm -f /usr/bin/csas-sharepoint
-        fi
+        # Cleanup is handled automatically by dpkg for packaged files
+        # No manual cleanup needed since we install actual files, not symlinks
         ;;
     
     upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)

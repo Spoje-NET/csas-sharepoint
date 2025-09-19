@@ -1,3 +1,20 @@
+csas-sharepoint (1.1.0) stable; urgency=medium
+
+  * Enhanced Result Reporting: Comprehensive reports conforming to MultiFlexi schema
+  * Result File Management: Captures detailed information from both csas-statement-downloader and file2sharepoint
+  * UTF-8 Encoding Fix: Resolved UTF-8 decoding issues when reading configuration files
+  * Robust Error Handling: Graceful handling of missing/malformed data and tool failures
+  * Schema Validation: Built-in validation against MultiFlexi report schema
+  * Backup System: Individual result files are backed up for each operation
+  * Status Intelligence: Smart status determination based on operation outcomes
+  * Comprehensive Logging: Enhanced debug logging with configurable levels
+  * Artifact Management: Proper tracking of downloaded files and SharePoint URLs
+  * Added validation script: validate_report.py for schema compliance checking
+  * Added test script: test_result_loading.py for result processing testing
+  * Updated documentation with comprehensive usage examples
+
+ -- Vítězslav Dvořák <info@vitexsoftware.cz>  Thu, 19 Sep 2025 10:19:00 +0200
+
 csas-sharepoint (1.0.0) stable; urgency=medium
 
   * Initial release of MultiFlexi integration for Česká spořitelna ABO statement to SharePoint automation

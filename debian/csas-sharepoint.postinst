@@ -3,13 +3,15 @@ set -e
 
 case "$1" in
     configure)
-        # Make the main script executable
+        # Make scripts executable
         chmod +x /usr/lib/csas-sharepoint/main.py
+        chmod +x /usr/lib/csas-sharepoint/test_result_loading.py
+        chmod +x /usr/lib/csas-sharepoint/validate_report.py
         
-        # Ensure the symlink is created properly
-        if [ ! -L /usr/bin/csas-sharepoint ]; then
-            ln -sf /usr/lib/csas-sharepoint/main.py /usr/bin/csas-sharepoint
-        fi
+        # Make the installed bin scripts executable
+        chmod +x /usr/bin/csas-sharepoint
+        chmod +x /usr/bin/csas-sharepoint-validate
+        chmod +x /usr/bin/csas-sharepoint-test
         ;;
     
     abort-upgrade|abort-remove|abort-deconfigure)

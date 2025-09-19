@@ -1,0 +1,141 @@
+.TH csas-sharepoint 1 "September 2025" "csas-sharepoint 1.1.0" "User Commands"
+.SH NAME
+csas-sharepoint \- CSAS bank statements to SharePoint uploader with comprehensive reporting
+.SH SYNOPSIS
+.B csas-sharepoint
+[\fI\,OPTION\/\fR]...
+.SH DESCRIPTION
+This application automates the process of downloading bank statements from Česká spořitelna (CSAS) and uploading them to Microsoft SharePoint with enhanced result management and comprehensive reporting.
+
+The application generates detailed reports conforming to the MultiFlexi schema, captures complete information from both download and upload operations, and provides intelligent status determination.
+.SH OPTIONS
+.TP
+\fB\-f\fR, \fB\-\-format\fR \fIFORMAT\fR
+Statement format (default: pdf)
+Available formats: pdf, xml, xml-data, abo-standard, abo-internal, csv-comma, csv-semicolon, mt940
+.TP
+\fB\-s\fR, \fB\-\-scope\fR \fISCOPE\fR
+Time scope for statements
+Available scopes: yesterday, current_month, last_month, last_two_months, previous_month, this_year
+.TP
+\fB\-p\fR, \fB\-\-sharepoint\-path\fR \fIPATH\fR
+Target path in SharePoint
+.TP
+\fB\-t\fR, \fB\-\-temp\-dir\fR \fIDIRECTORY\fR
+Temporary directory for downloads
+.TP
+\fB\-\-no\-cleanup\fR
+Do not cleanup temporary files (useful for debugging)
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Show help message and exit
+.SH ENVIRONMENT VARIABLES
+Configuration is provided via environment variables, typically in a .env file:
+
+.B CSAS Configuration:
+.br
+CSAS_API_KEY - CSAS API key (required)
+.br
+CSAS_ACCESS_TOKEN - CSAS access token (required)
+.br
+CSAS_ACCOUNT_IBAN - CSAS account IBAN (required)
+.br
+CSAS_STATEMENT_SCOPE - Default scope for statement download
+
+.B SharePoint Configuration:
+.br
+OFFICE365_TENANT - Office 365 tenant name (required)
+.br
+OFFICE365_SITE - SharePoint site name (required)
+.br
+OFFICE365_USERNAME - Office 365 username (for user auth)
+.br
+OFFICE365_PASSWORD - Office 365 password (for user auth)
+.br
+OFFICE365_CLIENTID - Office 365 client ID (for app auth)
+.br
+OFFICE365_CLSECRET - Office 365 client secret (for app auth)
+.br
+SHAREPOINT_LIBRARY - SharePoint document library
+.br
+OFFICE365_PATH - Target path in SharePoint
+
+.B Result Reporting:
+.br
+RESULT_FILE - MultiFlexi compatible JSON report file (optional)
+
+.B Debug Settings:
+.br
+DEBUG - Enable debug logging (true/false)
+.br
+APP_DEBUG - Enable application debug mode (true/false)
+.br
+EASE_LOGGER - Logging method (console/syslog/eventlog)
+.SH RESULT REPORTING
+When RESULT_FILE is specified, the application generates comprehensive reports that conform to the MultiFlexi report schema. Reports include:
+
+\- Detailed download information from csas-statement-downloader
+.br
+\- Complete upload results from file2sharepoint  
+.br
+\- Intelligent status determination (success/warning/error)
+.br
+\- File counts, success rates, and timing metrics
+.br
+\- SharePoint URLs and artifact tracking
+.SH EXIT STATUS
+.TP
+.B 0
+Success - all operations completed successfully
+.TP
+.B 1
+Configuration error - missing required environment variables
+.TP
+.B 2
+Download failed - csas-statement-downloader failed
+.TP
+.B 3
+Upload failed - file2sharepoint operations failed
+.TP
+.B 4
+Unexpected error - unhandled exception occurred
+.SH EXAMPLES
+.TP
+Download yesterday's PDF statements and upload to SharePoint:
+.B csas-sharepoint -f pdf -s yesterday -p "Statements/"
+
+.TP
+Download current month's XML statements with debug logging:
+.B DEBUG=true csas-sharepoint -f xml -s current_month
+
+.TP
+Download with custom temporary directory and no cleanup:
+.B csas-sharepoint --temp-dir /tmp/csas-custom --no-cleanup
+.SH FILES
+.TP
+.I /usr/lib/csas-sharepoint/main.py
+Main application script
+.TP
+.I /usr/lib/csas-sharepoint/validate_report.py  
+Report validation utility
+.TP
+.I /usr/lib/csas-sharepoint/test_result_loading.py
+Result processing test utility
+.TP
+.I .env
+Configuration file (create in working directory)
+.SH SEE ALSO
+.BR csas-sharepoint-validate (1),
+.BR csas-sharepoint-test (1),
+.BR csas-statement-downloader (1),
+.BR file2sharepoint (1)
+
+MultiFlexi documentation: https://multiflexi.eu
+.br
+MultiFlexi report schema: https://raw.githubusercontent.com/VitexSoftware/php-vitexsoftware-multiflexi-core/refs/heads/main/multiflexi.report.schema.json
+.SH AUTHOR
+Vítězslav Dvořák <info@vitexsoftware.cz>
+.br
+VitexSoftware, Spoje-NET
+.SH BUGS
+Report bugs to: https://github.com/VitexSoftware/csas-sharepoint/issues

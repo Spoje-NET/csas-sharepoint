@@ -17,8 +17,10 @@ import subprocess
 import tempfile
 import glob
 import logging
+import json
+import shutil
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 import argparse
 
 
@@ -37,6 +39,12 @@ class CSASSharePointUploader:
         self.logger = self._setup_logging()
         self.temp_dir = temp_dir or tempfile.mkdtemp(prefix='csas_statements_')
         self.downloaded_files: List[str] = []
+        
+        # Result file management
+        self.original_result_file = os.getenv('RESULT_FILE')
+        self.temp_result_file = None
+        self.download_result: Dict[str, Any] = {}
+        self.upload_results: List[Dict[str, Any]] = []
         
         # Ensure temp directory exists
         Path(self.temp_dir).mkdir(parents=True, exist_ok=True)
@@ -69,6 +77,177 @@ class CSASSharePointUploader:
             logger.addHandler(handler)
         
         return logger
+    
+    def _setup_temp_result_file(self) -> None:
+        """
+        Setup temporary result file and modify environment.
+        """
+        if self.original_result_file:
+            self.temp_result_file = os.path.join(self.temp_dir, 'temp_result.json')
+            os.environ['RESULT_FILE'] = self.temp_result_file
+            self.logger.debug(f"Temporary result file: {self.temp_result_file}")
+        else:
+            self.logger.debug("No RESULT_FILE environment variable set")
+    
+    def _restore_result_file_env(self) -> None:
+        """
+        Restore original RESULT_FILE environment variable.
+        """
+        if self.original_result_file:
+            os.environ['RESULT_FILE'] = self.original_result_file
+        elif 'RESULT_FILE' in os.environ:
+            del os.environ['RESULT_FILE']
+    
+    def _load_temp_result(self, source: str) -> Dict[str, Any]:
+        """
+        Load result from temporary result file.
+        
+        Args:
+            source: Source identifier for the result (e.g., 'download', 'upload')
+            
+        Returns:
+            Dictionary containing the result data
+        """
+        result = {'source': source, 'success': False, 'data': None}
+        
+        if self.temp_result_file and os.path.exists(self.temp_result_file):
+            try:
+                with open(self.temp_result_file, 'r', encoding='utf-8', errors='ignore') as f:
+                    data = json.load(f)
+                    result.update({'success': True, 'data': data})
+                    self.logger.debug(f"Loaded {source} result from {self.temp_result_file}: {len(str(data))} chars")
+            except json.JSONDecodeError as e:
+                self.logger.warning(f"Failed to parse JSON from {source} result: {e}")
+                # Try to read as text if JSON parsing fails
+                try:
+                    with open(self.temp_result_file, 'r', encoding='utf-8', errors='ignore') as f:
+                        text_data = f.read().strip()
+                        if text_data:
+                            result.update({'success': True, 'data': {'raw_output': text_data}})
+                            self.logger.debug(f"Loaded {source} result as text: {len(text_data)} chars")
+                except Exception as e2:
+                    self.logger.warning(f"Failed to read {source} result file as text: {e2}")
+            except Exception as e:
+                self.logger.warning(f"Failed to load {source} result: {e}")
+        else:
+            self.logger.debug(f"No result file found for {source} at {self.temp_result_file}")
+        
+        return result
+    
+    def _backup_temp_result(self, source: str) -> Optional[str]:
+        """
+        Backup the current temporary result file for a specific source.
+        
+        Args:
+            source: Source identifier (e.g., 'download', 'upload')
+            
+        Returns:
+            Path to the backup file, or None if no backup was created
+        """
+        if self.temp_result_file and os.path.exists(self.temp_result_file):
+            backup_file = f"{self.temp_result_file}.{source}.backup"
+            try:
+                shutil.copy2(self.temp_result_file, backup_file)
+                self.logger.debug(f"Backed up {source} result to {backup_file}")
+                return backup_file
+            except Exception as e:
+                self.logger.warning(f"Failed to backup {source} result: {e}")
+        return None
+    
+    def _write_final_result(self) -> None:
+        """
+        Write combined final result to the original result file location.
+        Conforms to MultiFlexi report schema with detailed download and upload information.
+        """
+        if not self.original_result_file:
+            return
+        
+        # Determine overall status
+        download_success = self.download_result.get('success', False)
+        files_downloaded = len(self.downloaded_files)
+        successful_uploads = sum(1 for r in self.upload_results if r.get('upload_success', False))
+        upload_attempts = len(self.upload_results)
+        
+        if not download_success and files_downloaded == 0:
+            status = "warning"  # No statements available
+            message = "No statements were available for download"
+        elif download_success and files_downloaded > 0 and successful_uploads == upload_attempts:
+            status = "success"
+            message = f"Successfully downloaded {files_downloaded} statement(s) and uploaded {successful_uploads} file(s) to SharePoint"
+        elif download_success and files_downloaded > 0 and successful_uploads < upload_attempts:
+            status = "warning"
+            message = f"Downloaded {files_downloaded} statement(s) but only {successful_uploads}/{upload_attempts} uploads succeeded"
+        else:
+            status = "error"
+            message = "Download failed"
+        
+        # Prepare artifacts - uploaded files with detailed information
+        artifacts = {}
+        if successful_uploads > 0:
+            uploaded_files = []
+            for upload_result in self.upload_results:
+                if upload_result.get('upload_success', False):
+                    # Try to get SharePoint URL from upload result data
+                    if upload_result.get('data') and isinstance(upload_result['data'], dict):
+                        url = upload_result['data'].get('url') or upload_result['data'].get('sharepoint_url')
+                        if url:
+                            uploaded_files.append(url)
+                        else:
+                            uploaded_files.append(upload_result.get('filename', 'unknown'))
+                    else:
+                        uploaded_files.append(upload_result.get('filename', 'unknown'))
+            
+            if uploaded_files:
+                artifacts['uploaded_statements'] = uploaded_files
+        
+        # Add downloaded files as artifacts even if not uploaded
+        if self.downloaded_files:
+            downloaded_files_list = [os.path.basename(f) for f in self.downloaded_files]
+            artifacts['downloaded_statements'] = downloaded_files_list
+        
+        # Prepare comprehensive metrics including detailed information
+        metrics = {
+            'files_downloaded': files_downloaded,
+            'upload_attempts': upload_attempts,
+            'successful_uploads': successful_uploads,
+            'download_success': 'true' if download_success else 'false'
+        }
+        
+        # Create comprehensive final result with detailed sections
+        final_result = {
+            'status': status,
+            'timestamp': subprocess.run(['date', '-Iseconds'], capture_output=True, text=True).stdout.strip(),
+            'message': message,
+            'artifacts': artifacts,
+            'metrics': metrics,
+            # Add detailed download and upload information
+            'download_details': self.download_result,
+            'upload_details': self.upload_results
+        }
+        
+        # Add original tool results if they contain meaningful data
+        if self.download_result.get('data'):
+            final_result['csas_downloader_report'] = self.download_result['data']
+        
+        # Add file2sharepoint reports for each upload
+        sharepoint_reports = []
+        for upload_result in self.upload_results:
+            if upload_result.get('data'):
+                sharepoint_reports.append({
+                    'filename': upload_result.get('filename'),
+                    'success': upload_result.get('upload_success', False),
+                    'report': upload_result['data']
+                })
+        
+        if sharepoint_reports:
+            final_result['file2sharepoint_reports'] = sharepoint_reports
+        
+        try:
+            with open(self.original_result_file, 'w', encoding='utf-8') as f:
+                json.dump(final_result, f, indent=2, ensure_ascii=False)
+            self.logger.info(f"Final result written to {self.original_result_file}")
+        except Exception as e:
+            self.logger.error(f"Failed to write final result: {e}")
     
     def _check_environment(self) -> bool:
         """
@@ -118,6 +297,9 @@ class CSASSharePointUploader:
         """
         self.logger.info(f"Downloading CSAS statements (format: {format_type})")
         
+        # Setup temporary result file
+        self._setup_temp_result_file()
+        
         cmd = [
             'csas-statement-downloader',
             '-d', self.temp_dir,
@@ -129,6 +311,7 @@ class CSASSharePointUploader:
         if scope:
             env['CSAS_STATEMENT_SCOPE'] = scope
         
+        success = False
         try:
             result = subprocess.run(
                 cmd, 
@@ -139,26 +322,34 @@ class CSASSharePointUploader:
             )
             
             if result.returncode == 0:
-                # Find downloaded files
-                self.downloaded_files = glob.glob(os.path.join(self.temp_dir, '*'))
+                # Find downloaded files (exclude result file)
+                all_files = glob.glob(os.path.join(self.temp_dir, '*'))
+                self.downloaded_files = [f for f in all_files if f != self.temp_result_file]
                 self.logger.info(f"Successfully downloaded {len(self.downloaded_files)} statement(s)")
                 
                 for file_path in self.downloaded_files:
                     self.logger.debug(f"Downloaded: {os.path.basename(file_path)}")
                 
-                return True
+                success = True
             else:
                 self.logger.error(f"CSAS downloader failed: {result.stderr}")
                 if result.stdout:
                     self.logger.debug(f"CSAS downloader stdout: {result.stdout}")
-                return False
                 
         except subprocess.TimeoutExpired:
             self.logger.error("CSAS statement download timed out")
-            return False
         except subprocess.CalledProcessError as e:
             self.logger.error(f"CSAS downloader error: {e}")
-            return False
+        
+        # Load and backup download result
+        self.download_result = self._load_temp_result('download')
+        
+        # Backup the download result file for later reference
+        download_backup = self._backup_temp_result('download')
+        if download_backup:
+            self.download_result['backup_file'] = download_backup
+        
+        return success
     
     def upload_to_sharepoint(self, sharepoint_path: str = '') -> bool:
         """
@@ -185,12 +376,17 @@ class CSASSharePointUploader:
             
             self.logger.debug(f"Uploading: {os.path.basename(file_path)}")
             
+            # Clear temp result file before each upload
+            if self.temp_result_file and os.path.exists(self.temp_result_file):
+                os.remove(self.temp_result_file)
+            
             cmd = [
                 'file2sharepoint',
                 file_path,
                 sharepoint_path
             ]
             
+            upload_success = False
             try:
                 result = subprocess.run(
                     cmd,
@@ -202,6 +398,7 @@ class CSASSharePointUploader:
                 
                 if result.returncode == 0:
                     success_count += 1
+                    upload_success = True
                     self.logger.info(f"Successfully uploaded: {os.path.basename(file_path)}")
                     if result.stdout.strip():
                         self.logger.info(f"SharePoint URL: {result.stdout.strip()}")
@@ -212,17 +409,37 @@ class CSASSharePointUploader:
                 self.logger.error(f"Upload timeout for: {os.path.basename(file_path)}")
             except subprocess.CalledProcessError as e:
                 self.logger.error(f"Upload error for {os.path.basename(file_path)}: {e}")
+            
+            # Load upload result for this file
+            upload_result = self._load_temp_result('upload')
+            
+            # Backup this upload result
+            upload_backup = self._backup_temp_result(f'upload_{os.path.basename(file_path)}')
+            
+            upload_result.update({
+                'filename': os.path.basename(file_path),
+                'filepath': file_path,
+                'upload_success': upload_success,
+                'backup_file': upload_backup
+            })
+            
+            self.upload_results.append(upload_result)
+            self.logger.debug(f"Captured upload result for {os.path.basename(file_path)}: {upload_result.get('success', False)}")
         
         self.logger.info(f"Upload complete: {success_count}/{len(self.downloaded_files)} files uploaded")
         return success_count > 0
     
     def cleanup(self) -> None:
         """
-        Clean up temporary files.
+        Clean up temporary files and backup files.
         """
         try:
-            import shutil
             if os.path.exists(self.temp_dir):
+                # List files before cleanup for debugging
+                files_in_temp = os.listdir(self.temp_dir)
+                if files_in_temp:
+                    self.logger.debug(f"Files in temp directory before cleanup: {files_in_temp}")
+                
                 shutil.rmtree(self.temp_dir)
                 self.logger.debug(f"Cleaned up temporary directory: {self.temp_dir}")
         except Exception as e:
@@ -264,6 +481,12 @@ class CSASSharePointUploader:
             self.logger.error(f"Unexpected error: {e}")
             return 4
         finally:
+            # Write final combined result
+            self._write_final_result()
+            
+            # Restore original result file environment
+            self._restore_result_file_env()
+            
             if cleanup:
                 self.cleanup()
 
@@ -340,7 +563,7 @@ Scopes: yesterday, current_month, last_month, last_two_months, previous_month, t
     env_file = os.path.join(os.getcwd(), '.env')
     if os.path.exists(env_file):
         try:
-            with open(env_file, 'r') as f:
+            with open(env_file, 'r', encoding='utf-8', errors='ignore') as f:
                 for line in f:
                     line = line.strip()
                     if line and not line.startswith('#') and '=' in line:

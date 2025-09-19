@@ -6,6 +6,7 @@ Build-Depends:
  debhelper-compat (= 13),
  python3,
  python3-setuptools,
+ python3-jsonschema,
 Standards-Version: 4.7.0
 Homepage: https://github.com/VitexSoftware/csas-sharepoint
 Rules-Requires-Root: no
@@ -18,23 +19,31 @@ Depends:
  ${misc:Depends},
  ${python3:Depends},
  python3,
+ python3-jsonschema,
  csas-statement-tools,
  file2sharepoint,
 Recommends:
  multiflexi,
-Description: CSAS bank statements to SharePoint uploader
+Description: CSAS bank statements to SharePoint uploader with comprehensive reporting
  This application automates the process of downloading bank statements
- from Česká spořitelna (CSAS) and uploading them to Microsoft SharePoint.
+ from Česká spořitelna (CSAS) and uploading them to Microsoft SharePoint
+ with enhanced result management and comprehensive reporting.
  .
- Features:
-  * Download bank statements using csas-statement-tools
-  * Upload statements to SharePoint using file2sharepoint
+ Key Features:
+  * Automated bank statement processing using csas-statement-tools
+  * SharePoint integration using file2sharepoint
+  * Comprehensive reporting conforming to MultiFlexi schema
+  * Result file management with detailed operation tracking
+  * Robust error handling with UTF-8 encoding support
   * Command-line interface for easy automation
-  * Error handling and comprehensive logging
-  * MultiFlexi framework compatible
+  * Enhanced logging with configurable debug levels
+  * MultiFlexi framework fully compatible
+  * Schema validation for generated reports
  .
  The application supports various statement formats (PDF, XML, ABO, CSV)
- and flexible date scopes for statement retrieval.
+ and flexible date scopes for statement retrieval. Generated reports
+ include detailed information from both download and upload operations,
+ with intelligent status determination and comprehensive metrics.
 
 Package: multiflexi-csas-sharepoint
 Architecture: all

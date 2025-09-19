@@ -6,7 +6,7 @@ authors = [
     {name = "Vítězslav Dvořák", email = "info@vitexsoftware.cz"}
 ]
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.13.5"
 dependencies = []
 keywords = ["csas", "sharepoint", "banking", "statements", "automation"]
 classifiers = [
