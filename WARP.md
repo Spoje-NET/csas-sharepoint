@@ -53,10 +53,22 @@ python -m unittest tests.test_module_name
 ```
 
 ### CSAS Token Management
+⚠️ **CRITICAL**: ČSAS access tokens expire after only 5 minutes! Always refresh before testing.
+
 ```bash
 # Refresh CSAS access token (requires csas-statement-tools)
+# This MUST be run before any CSAS API operations
 make token
+
+# The token will be written to .env file and is only valid for 5 minutes
+# Always run this command immediately before testing the application
 ```
+
+**Important Notes:**
+- ČSAS access tokens have a very short 5-minute lifespan
+- Always run `make token` immediately before any development or testing
+- The token is stored in the `.env` file as `CSAS_ACCESS_TOKEN`
+- If you get authentication errors, the token has likely expired - refresh it again
 
 ### Docker Operations
 ```bash

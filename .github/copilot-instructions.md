@@ -35,3 +35,5 @@ When create new class or update existing class, always create or update its unit
 All files in the multiflexi/*.app.json directory must conform to the schema available at: https://raw.githubusercontent.com/VitexSoftware/php-vitexsoftware-multiflexi-core/refs/heads/main/multiflexi.app.schema.json
 
 All produced reports must conform to the schema available at: https://raw.githubusercontent.com/VitexSoftware/php-vitexsoftware-multiflexi-core/refs/heads/main/multiflexi.report.schema.json
+
+⚠️ **CRITICAL ČSAS TOKEN MANAGEMENT**: ČSAS access tokens expire after only 5 minutes! Before any development, testing, or debugging involving ČSAS API calls, always run `make token` to refresh the access token. If authentication errors occur, the token has likely expired and must be refreshed immediately. The token is stored in `.env` as `CSAS_ACCESS_TOKEN`.

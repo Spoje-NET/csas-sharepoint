@@ -35,6 +35,8 @@ sudo apt install csas-sharepoint
 
 ## Configuration
 
+⚠️ **CRITICAL**: ČSAS access tokens expire after only 5 minutes! Always run `make token` to refresh the token before testing or using the application.
+
 Create a `.env` file with the required configuration:
 
 ```bash
@@ -71,6 +73,23 @@ DEBUG=true
 APP_DEBUG=true
 EASE_LOGGER=console
 ```
+
+### Token Management
+
+⚠️ **IMPORTANT**: ČSAS access tokens are valid for only 5 minutes!
+
+```bash
+# Refresh CSAS access token before any operations
+make token
+
+# This updates the CSAS_ACCESS_TOKEN in your .env file
+# Always run this immediately before testing or using the application
+```
+
+**Token Refresh Workflow:**
+1. Run `make token` to get a fresh 5-minute token
+2. Immediately run your tests or application
+3. If you get authentication errors, run `make token` again
 
 ## Usage
 
