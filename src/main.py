@@ -83,6 +83,8 @@ class CSASSharePointUploader:
         Setup temporary result file and modify environment.
         """
         if self.original_result_file:
+            # Ensure the temporary directory exists before creating the temp result file
+            Path(self.temp_dir).mkdir(parents=True, exist_ok=True)
             self.temp_result_file = os.path.join(self.temp_dir, 'temp_result.json')
             os.environ['RESULT_FILE'] = self.temp_result_file
             self.logger.debug(f"Temporary result file: {self.temp_result_file}")
