@@ -19,8 +19,6 @@
         "Banking"
     ],
     "homepage": "https://github.com/Spoje-Net/csas-sharepoint",
-    "image": "",
-    "ociimage": "",
     "executable": "csas-sharepoint",
     "environment": {
         "CSAS_API_KEY": {
