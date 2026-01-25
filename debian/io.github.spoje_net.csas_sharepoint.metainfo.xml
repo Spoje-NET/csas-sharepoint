@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="console-application">
+  <id>io.github.spoje_net.csas_sharepoint</id>
+  <metadata_license>MIT</metadata_license>
+  <project_license>GPL-2+</project_license>
+  <name>csas-sharepoint</name>
+  <summary>CSAS bank statements to SharePoint uploader with comprehensive reporting</summary>
+  <description>
+    <p>
+      This application automates the process of downloading bank statements from Česká spořitelna (CSAS) and uploading them to Microsoft SharePoint with enhanced result management and comprehensive reporting. Key Features: * Automated bank statement processing using csas-statement-tools * SharePoint integration using file2sharepoint * Comprehensive reporting conforming to MultiFlexi schema * Result file management with detailed operation tracking * Robust error handling with UTF-8 encoding support * Command-line interface for easy automation * Enhanced logging with configurable debug levels * MultiFlexi framework fully compatible * Schema validation for generated reports The application supports various statement formats (PDF, XML, ABO, CSV) and flexible date scopes for statement retrieval. Generated reports include detailed information from both download and upload operations, with intelligent status determination and comprehensive metrics. This package provides configuration and automation scripts for integrating Česká spořitelna ABO statement downloads and SharePoint uploads via MultiFlexi.
+    </p>
+  </description>
+  <categories>
+    <category>System</category>
+    <category>ConsoleOnly</category>
+  </categories>
+  <url type="homepage">https://github.com/Spoje-NET/csas-sharepoint</url>
+  <url type="bugtracker">https://github.com/Spoje-NET/csas-sharepoint/issues</url>
+  <developer id="io.github.spoje_net">
+    <name>Spoje.Net</name>
+  </developer>
+  <provides>
+    <binary>csas-sharepoint</binary>
+  </provides>
+  <content_rating type="oars-1.1"/>
+</component>
