@@ -6,7 +6,8 @@ set -e
 
 for file in /usr/lib/csas-sharepoint/multiflexi/*.json
 do
-	multiflexi-json2app "$file"
+	[ -s "$file" ] || continue
+	multiflexi-cli application:import-json --file="$file"
 done
 
 #DEBHELPER#

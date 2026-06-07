@@ -49,6 +49,6 @@ Description: CSAS bank statements to SharePoint uploader with comprehensive repo
 
 Package: multiflexi-csas-sharepoint
 Architecture: all
-Depends: python3, csas-sharepoint, multiflexi
+Depends: python3, csas-sharepoint, multiflexi-cli
 Description: MultiFlexi integration for Česká spořitelna ABO statement to SharePoint automation
  This package provides configuration and automation scripts for integrating Česká spořitelna ABO statement downloads and SharePoint uploads via MultiFlexi.
