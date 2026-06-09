@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/VitexSoftware/php-vitexsoftware-multiflexi-core/refs/heads/main/multiflexi.app.schema.json",
-  "schemaVersion": "3.0.0",
+  "schemaVersion": "3.4.0",
   "uuid": "f4d7c8a2-3e9b-4f5a-8c1d-2b6e9f7a4c5d",
   "name": {
     "en": "CSAS to SharePoint",
@@ -20,6 +20,19 @@
   ],
   "homepage": "https://github.com/Spoje-Net/csas-sharepoint",
   "executable": "csas-sharepoint",
+  "events": {
+    "consumes": {
+      "file.ready": {
+        "description": "A file is ready for upload",
+        "format": "file"
+      }
+    },
+    "emits": {
+      "file.uploaded": {
+        "description": "A file was uploaded to an external store"
+      }
+    }
+  },
   "environment": {
     "CSAS_API_KEY": {
       "type": "text",
