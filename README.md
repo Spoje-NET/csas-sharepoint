@@ -1,6 +1,8 @@
 # CSAS to SharePoint Statement Uploader
 
 ![Logo](csas-sharepoint.svg?raw=true)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![Packaging: deb](https://img.shields.io/badge/packaging-.deb-red?logo=debian&logoColor=white)
 
 This project provides a Python application to automate the process of downloading bank statements from Česká spořitelna (CSAS) and uploading them to SharePoint with comprehensive reporting and result management.
 
